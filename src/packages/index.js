@@ -1,7 +1,7 @@
 import  "./styles/index.scss";
+import IChat from "./main/index.js";
 
-
-const components = [];
+const components = [IChat];
 // 安装函数
 const install = function (Vue) {
     if(install.installed) return;

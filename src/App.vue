@@ -1,15 +1,16 @@
-<script lang="jsx">
-import { h } from "vue";
+<template>
+  <div>
+    <IChat :chats="chats"> </IChat>
+  </div>
+</template>
+
+<script>
 export default {
-    name:"App",
-    render(){
-
-        return h("div",[
-            "你好世界"
-        ])
-    }
-
-}
+  name: "App",
+  data() {
+    return {
+      chats: [],
+    };
+  },
+};
 </script>
-<style>
-</style>
