@@ -11,6 +11,9 @@ import {
     watch,
     nextTick,
 } from "vue";
+
+import ChatContent from "../../chat/index.js";
+import ChatTabs from "./chat-tabs.vue";
 // 默认值
 const default_mine = {
     id: "10001",
@@ -25,7 +28,7 @@ const default_config = {
     //简约模式
     brief: true,
     // 标签是否可以删除
-    tabRemove: false,
+    tabRemove: true,
     // 窗口是否可以越界
     moveOut: true
 }
@@ -49,7 +52,18 @@ export default {
             default: () => [],
         },
     },
+    components: {
+        ChatTabs,
+        ChatContent,
+    },
     setup(props, ctx) {
+        // 会话框组件集合
+        const panes = ref([]);
+        // 当前选中的会话框，以 index 索引为key
+        const selected = ref("0");
+        // 会话框状态 键值对 没有办法通过实例直接获取props信息
+        const paneStateMap = {};
+        // 会话框是否显示
         const chatDisplay = ref(true);
         // 具体实例
         const instance = getCurrentInstance();
@@ -109,24 +123,124 @@ export default {
             };
         };
 
+        //! 过滤出Chat对话框
+        const filterPaneComponents = (vnode = [], componentInstances = []) => {
+            Array.from(vnode ?? []).forEach((node) => {
+                let type = node.type;
+                type = type.name || type;
+                if (type === "chat-content" && node.component) {
+                    componentInstances.push(node.component)
+                } else {
+                    filterPaneComponents(node.children, componentInstances)
+                }
+            })
+            return componentInstances;
+        }
+
+        // 计算会话框实例
+        const calcPaneInstances = () => {
+
+            if (instance.subTree.children) {
+
+                const children = instance.subTree.children;
+
+                if (!children) return
+
+                const paneVNodes = filterPaneComponents(children).map((item) => {
+                    return paneStateMap[item.uid]
+                })
+
+                const panesChanged = !(paneVNodes.length === panes.value.length &&
+                    paneVNodes.every((item, index) => item.uid === panes.value[index].uid)
+                )
+                // 插槽内部发生变化
+                if (panesChanged) {
+                    panes.value = paneVNodes;
+
+                    selected.value = '0' //不用传参所以值设置为0
+                }
+            } else if (panes.value.length !== 0) {
+                panes.value = [];
+            }
+
+        }
+
         // 页面加载后调用
         onMounted(() => {
             initWindowPosition();
+            calcPaneInstances();
         });
+
+        onUpdated(() => {
+            calcPaneInstances();
+        })
+
+        // 提供子组件 inject 获取
+        provide("rootChat", {
+            config,
+            chatDisplay,
+            selected,
+        });
+        provide("updatePaneStateCallback", (pane) => {
+            paneStateMap[pane.uid] = pane;
+        });
+
         return {
+            panes,
+            selected,
             chatDisplay,
             handleDragWindow,
+            paneStateMap,
+            
         };
+    },
+    methods:{
+        handleTabClick(pane){
+            // this.selected
+            console.log("------",pane);
+            this.selected = pane.index;
+        },
+        handleChatDisplay(){
+            this.chatDisplay = !this.chatDisplay
+        },
+        handleTabRemove(){
+
+        }
     },
     render() {
 
-        let { mine, chats, chatDisplay, handleDragWindow } = this;
+        let { mine,
+            chats,
+            chatDisplay,
+            handleDragWindow,
+            panes,
+            handleTabClick,
+            handleChatDisplay,
+            handleTabRemove,
+        } = this;
         //! 注意下这里的写法变化过程
-        const el_chat_panes = h(
-            "div",
-            { class: ["im-chat-main"], style: { height: "500px" } },
-            [h("div", { class: ["im-pane-item"] })]
-        );
+        /*   const el_chat_panes = h(
+              "div",
+              { class: ["im-chat-main"], style: { height: "500px" } },
+              [h("div", { class: ["im-pane-item"] })]
+          );
+   */
+        // 会话框列表
+        const el_chat_panes = renderList(chats, (chat) => {
+            // 构建会话窗口
+            return h(ChatContent, {
+                chat
+            })
+        })
+
+        //会话标签
+        const el_chat_tabs = h(ChatTabs, {
+            panes,
+            onTabClick: handleTabClick,
+            onTabRemove: handleTabRemove,
+            onChatDisplay: handleChatDisplay,
+            onDragWindow: handleDragWindow,
+        })
 
         // 主体内容
         const el_chat_content = h(
@@ -134,7 +248,9 @@ export default {
             {
                 class: ["im-layer-tabs", "im-layer-content"],
             },
-            [el_chat_panes]
+            [el_chat_tabs, h("div",{
+                
+            },[el_chat_panes])]
         );
 
         // 窗口设置栏
@@ -193,7 +309,8 @@ export default {
                 el_chat_win_resize,
             ]
         );
-        return h("div",[el_chat_main])
+
+        return h("div", { id: "layer-box" }, [el_chat_main])
     }
 }
 </script>
