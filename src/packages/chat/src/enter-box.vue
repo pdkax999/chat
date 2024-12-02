@@ -1,15 +1,43 @@
 <template>
-  <div>
-    输入框
+  <div class="im-enterBox-container">
+   <div class="im-enter-arrow">
+    <el-input
+      v-model="value"
+      style="width: 590px"
+      :rows="2"
+      type="textarea"
+    />
+   </div>
+    <el-button class="im-enterBox-send"  type="primary" @click="onEnter(value)">发送</el-button>
   </div>
+
 </template>
 
-<script type="text/ecmascript-6">
-  export default {
-  }
-</script>
+<script setup>
+import { ref } from 'vue'
+// 向上抛出信息
+const value = defineModel('value', { default: "" });
 
-<style lang='stylus' rel='stylesheet/stylus'>
+const props = defineProps({
+  onEnter:{
+    type:Function,
+    default:()=>{}
+  }
+});
 
  
+</script>
+
+<style lang='scss' scoped>
+.im-enter-arrow{
+  height: 52px;
+}
+.im-enterBox-container{
+  display: flex;
+  flex-direction: column;
+  row-gap: 10px;
+  .im-enterBox-send{
+   align-self: flex-end;
+  }
+}
 </style>

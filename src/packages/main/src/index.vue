@@ -51,6 +51,11 @@ export default {
             type: Array,
             default: () => [],
         },
+        // 用于接收消息
+        handleMessage: {
+            type: Function,
+            default: () => { }
+        }
     },
     components: {
         ChatTabs,
@@ -92,7 +97,7 @@ export default {
             const el = instance.refs.chat;
             let X = e.clientX - el.offsetLeft;
             let Y = e.clientY - el.offsetTop;
-            let fixed = false;
+            let fixed = false; //! 奇怪这玩意是干嘛的
             document.onmousemove = function (e) {
                 // 阻止冒泡事件
                 e.preventDefault();
@@ -147,7 +152,7 @@ export default {
                 if (!children) return
 
                 const paneVNodes = filterPaneComponents(children).map((item) => {
-                    return paneStateMap[item.uid]
+                    return paneStateMap[item.uid] //所有数据都已经注册好了
                 })
 
                 const panesChanged = !(paneVNodes.length === panes.value.length &&
@@ -155,9 +160,8 @@ export default {
                 )
                 // 插槽内部发生变化
                 if (panesChanged) {
-                    panes.value = paneVNodes;
-
-                    selected.value = '0' //不用传参所以值设置为0
+                    panes.value = paneVNodes;          
+                    // selected.value = '0' //不用传参所以值设置为0
                 }
             } else if (panes.value.length !== 0) {
                 panes.value = [];
@@ -175,7 +179,7 @@ export default {
             calcPaneInstances();
         })
 
-        // 提供子组件 inject 获取
+        // 提供子组件 inject 获取, 观察者模式
         provide("rootChat", {
             config,
             chatDisplay,
@@ -191,19 +195,53 @@ export default {
             chatDisplay,
             handleDragWindow,
             paneStateMap,
-            
         };
     },
-    methods:{
-        handleTabClick(pane){
-            // this.selected
-            console.log("------",pane);
+    methods: {
+        handleTabClick(pane) {
             this.selected = pane.index;
         },
-        handleChatDisplay(){
+        handleChatDisplay() {
             this.chatDisplay = !this.chatDisplay
         },
-        handleTabRemove(){
+        handleTabRemove() {
+
+        },
+        /* 
+        !消息的基本结构
+         {
+            timestamp:"",
+            form:{}
+            content:"",
+            to:{},
+            id:"",
+            type:0 //消息类型
+         }
+        */
+        getMessage(chats) {
+            // 是否考虑健壮性
+            const { id, type } = this.findChatByUser(chats);
+            //? 忽略了this.panes是更好的选择
+
+            console.log("-----", id, type);
+            
+            this.panes.forEach((chatItem) => {
+                const {chat} = chatItem;
+                if (chat.id === id && chat.type === type) {
+                    chatItem.getMessage(chats);
+                }
+            })
+        },
+        // 即时通讯通信，每条消息设计一个字段来辨别谁是发送者或者收到者
+        findChatByUser(message){
+
+            const {form,to} = message;
+
+            if(form.id === this.mine.id){
+                return to;
+            }else{
+                return form;
+            }
 
         }
     },
@@ -217,22 +255,26 @@ export default {
             handleTabClick,
             handleChatDisplay,
             handleTabRemove,
+            handleMessage
         } = this;
         //! 注意下这里的写法变化过程
         /*   const el_chat_panes = h(
               "div",
               { class: ["im-chat-main"], style: { height: "500px" } },
               [h("div", { class: ["im-pane-item"] })]
-          );
-   */
+          );*/
         // 会话框列表
         const el_chat_panes = renderList(chats, (chat) => {
             // 构建会话窗口
             return h(ChatContent, {
-                chat
+                chat,
+                mine,
+                // 向上抛出消息
+                onEnter: (message) => {
+                    handleMessage(message)
+                }
             })
         })
-
         //会话标签
         const el_chat_tabs = h(ChatTabs, {
             panes,
@@ -248,9 +290,9 @@ export default {
             {
                 class: ["im-layer-tabs", "im-layer-content"],
             },
-            [el_chat_tabs, h("div",{
-                
-            },[el_chat_panes])]
+            [el_chat_tabs, h("div", {
+              class:["im-panes-wrap"]
+            }, [el_chat_panes])]
         );
 
         // 窗口设置栏
@@ -324,5 +366,9 @@ export default {
 
 .chat-show.alone {
     width: 620px;
+}
+
+.im-panes-wrap{
+height: 100%;
 }
 </style>

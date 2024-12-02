@@ -5,7 +5,10 @@ import { default_avatar } from '../static/index.js'
 function noop() {
 
 }
-
+/* 
+动态生成会话item,对外提供item点击，移除，控制头部显示等功能
+内部提供显示是否在线，是否选中等激活样式
+*/
 export default {
     name: "chat-tabs",
     //注入祖先属性
@@ -69,7 +72,7 @@ export default {
             const { active, chat, } = pane;
             let { name, id, avatar, online } = chat;
             const tabName = id + name + index;
-            pane.index = `${index}`;
+            pane.index = `${index}`; //!直接操作属性
             //  在线状态
             let offline = false;
             if (chat.type === "friend") {
@@ -121,7 +124,7 @@ export default {
                 el_right_icon,
             ]);
         }
-
+    
         return h("ul", {
             class: ["im-chat-tabs", chatDisplay.value ? "" : "tabs-shadow"],
             onMousedown: (ev) => onDragWindow(ev),

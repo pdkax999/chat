@@ -1,15 +1,26 @@
 <template>
   <div>
-    聊天列表
+    <ul>
+      <template v-for="(item,index) in list" :key="item.id">
+        <li>
+          {{item.content}}
+        </li>
+      </template>
+    </ul>
   </div>
 </template>
 
-<script type="text/ecmascript-6">
-  export default {
+<script setup>
+
+const props = defineProps({
+  list:{
+    type:Array,
+    default:()=> []
   }
+});
 </script>
 
-<style lang='stylus' rel='stylesheet/stylus'>
+<style>
 
  
 </style>
