@@ -24,14 +24,16 @@ export default {
           name: "好友1",
           type: "friend",
           online: true,
-          title:"你好世界"
+          title:"你好世界",
+          avatar:this.getImg("../src/assets/ava_1.jpg")
         },
         {
           id: 3,
           name: "群组",
           type: "group",
           online: false,
-          title:"世界你好"
+          title:"世界你好",
+          avatar:this.getImg("../src/assets/ava_2.jpg")
         },
       ],
     };
@@ -46,7 +48,7 @@ export default {
         
         const id =  this.generateUUID()
 
-        getMessage({...message,id})
+        getMessage({...message,id,send:true})
         
         resolve(message);
       }).then((message)=>{
@@ -73,7 +75,7 @@ export default {
       // 将Uint8Array转换为十六进制字符串表示的UUID
       const uuid = arr.reduce((str, byte) => str + byte.toString(16).padStart(2, '0'), '');
       return uuid;
-}
+    },
   }
 };
 </script>

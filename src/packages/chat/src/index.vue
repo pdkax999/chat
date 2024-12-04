@@ -141,6 +141,7 @@ export default {
 
         // 输入框
         const el_enter_box = h(EnterBox, {
+            // jsx版V-Model
             value: content,
            'onUpdate:value':bindText, //同步文本数据
             onEnter: bindEnter,
@@ -175,17 +176,18 @@ export default {
     },
 }
 </script>
-<style>
+<style  lang='scss' scoped>
 .chat-hide {
-    width: 0;
-    overflow: hidden;
+width: 0;
+overflow: hidden;
 }
 
 .im-chat-footer{
- height: 170px;
+ height: 145px;
+ background-color: #EFEFEF;
 }
 
 .im-chat-talks{
-height: calc(440px - 170px);
+height: calc(440px - 145px);
 }
 </style>
