@@ -2,7 +2,7 @@
   <div class="im-enterBox-container">
    <div class="im-enter-arrow">
     <el-input
-      v-model="content"
+      v-model.trim="content"
       style="width: 590px"
       :rows="2"
       type="textarea"
@@ -33,7 +33,7 @@ const onHandleKeydown = (event)=>{
       //其他阻止换行
       if (!event.ctrlKey) {
           // 阻止事件默认行为并向上抛出事件
-          props.onEnter(content.value);
+          content.value && props.onEnter(content.value);
           event.preventDefault();
         } else {
           // ctrl + enter 组合键添加换行符号
