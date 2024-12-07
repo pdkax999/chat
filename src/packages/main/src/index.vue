@@ -11,6 +11,7 @@ import {
     watch,
     nextTick,
 } from "vue";
+import { loadLocalImg } from "@/utils/tools.js";
 
 import ChatContent from "../../chat/index.js";
 import ChatTabs from "./chat-tabs.vue";
@@ -20,7 +21,7 @@ const default_mine = {
     username: "jule-meteor",
     status: "online",
     sign: "与其感慨路难行,不如马上出发！",
-    avatar: "",
+    avatar: loadLocalImg('mine_avatar.jpg'),
 };
 
 //! 如果不传会怎么样

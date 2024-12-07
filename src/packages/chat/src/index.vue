@@ -135,6 +135,7 @@ export default {
         const el_content = h(TalkList, {
             current: active,
             list: talkList,
+            mine:this.mine,
             onUnread: handleUnread,
             class:["im-chat-talks"]
         });
@@ -188,6 +189,7 @@ overflow: hidden;
 }
 
 .im-chat-talks{
+background-color:#f5f6f7;
 height: calc(440px - 145px);
 }
 </style>

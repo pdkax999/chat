@@ -1,14 +1,13 @@
 <template>
   <div>
-    <IChat :chats="chats" ref="IChat" :handleMessage="sendMessageInfo"> </IChat>
+    <IChat :chats="chats" ref="IChat" :handleMessage="sendMessageInfo" > </IChat>
   </div>
 </template>
 
 <script>
-
 export default {
   name: "App",
-  data() {
+  data() {    
     return {
       config: {
         //简约模式
@@ -25,7 +24,7 @@ export default {
           type: "friend",
           online: true,
           title:"你好世界",
-          avatar:this.getImg("../src/assets/ava_1.jpg")
+          avatar:this.$loadLocalImg("ava_1.jpg")
         },
         {
           id: 3,
@@ -33,7 +32,7 @@ export default {
           type: "group",
           online: false,
           title:"世界你好",
-          avatar:this.getImg("../src/assets/ava_2.jpg")
+          avatar:this.$loadLocalImg("ava_2.jpg")
         },
       ],
     };
@@ -44,7 +43,8 @@ export default {
       const getMessage =  this.$refs.IChat.getMessage;
       // 数据源
       const random = ["革命尚未成功","同志仍需努力","这个世界是怎么样的?","你想成为什么样的人"];
-      new  Promise((resolve,reject)=>{
+      
+      new  Promise((resolve)=>{
         
         const id =  this.generateUUID()
 

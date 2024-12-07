@@ -3,12 +3,12 @@ import App from './App.vue'
 import IChat from "./packages/index.js";
 import ElementPlus from 'element-plus'
 import 'element-plus/dist/index.css'
+import plugins from "./plugins/index.js";
+
+
 
 let app = createApp(App)
 .use(IChat)
 .use(ElementPlus)
+.use(plugins)   //! 必须要在挂载之前引入组件
 .mount('#app')
-
-app.config.globalProperties.get = function  getImg(src){
-    return new URL(src, import.meta.url).href;
-}
